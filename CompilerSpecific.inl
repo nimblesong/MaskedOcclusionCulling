@@ -45,16 +45,55 @@
 	{
 		_aligned_free(ptr);
 	}
+#elif defined(ANDROID) || defined(__ANDROID__)
+	#include <malloc.h>
+	#include <new>
+	#pragma push_macro("FORCE_INLINE")
+	#define FORCE_INLINE inline
+
+	FORCE_INLINE unsigned long find_clear_lsb(unsigned int* mask)
+	{
+		unsigned long idx;
+		idx = __builtin_ctzl(*mask);
+		*mask &= *mask - 1;
+		return idx;
+	}
+
+	FORCE_INLINE void* aligned_alloc(size_t alignment, size_t size)
+	{
+		return memalign(alignment, size);
+	}
+
+	FORCE_INLINE void aligned_free(void* ptr)
+	{
+		free(ptr);
+	}
+
+	FORCE_INLINE void __cpuidex(int* cpuinfo, int function, int subfunction)
+	{
+
+	}
+
+	FORCE_INLINE unsigned long long _xgetbv(unsigned int index)
+	{
+		unsigned int eax, edx;
+		return ((unsigned long long)edx << 32) | eax;
+	}
+
 
 #elif defined(__GNUG__)	|| defined(__clang__) // G++ or clang
+
+
 	#include <cpuid.h>
+	#include <immintrin.h>
+	
 #if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__)
 	#include <malloc/malloc.h> // memalign
 #else
 	#include <malloc.h> // memalign
 #endif
 	#include <mm_malloc.h>
-	#include <immintrin.h>
+	
 	#include <new>
 
 	#define FORCE_INLINE inline
@@ -79,17 +118,21 @@
 
 	FORCE_INLINE void __cpuidex(int* cpuinfo, int function, int subfunction)
 	{
+
 		__cpuid_count(function, subfunction, cpuinfo[0], cpuinfo[1], cpuinfo[2], cpuinfo[3]);
+
 	}
 
 	FORCE_INLINE unsigned long long _xgetbv(unsigned int index)
 	{
 		unsigned int eax, edx;
+
 		__asm__ __volatile__(
 			"xgetbv;"
 			: "=a" (eax), "=d"(edx)
 			: "c" (index)
 		);
+
 		return ((unsigned long long)edx << 32) | eax;
 	}
 

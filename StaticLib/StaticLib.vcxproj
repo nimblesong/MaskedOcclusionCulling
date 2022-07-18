@@ -146,6 +146,7 @@
     <ClInclude Include="..\CullingThreadpool.h" />
     <ClInclude Include="..\FrameRecorder.h" />
     <ClInclude Include="..\MaskedOcclusionCulling.h" />
+    <ClInclude Include="..\sse2neon.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CullingThreadpool.cpp" />
@@ -167,6 +168,7 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">-mavx512f -mavx512bw -mavx512dq %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">-mavx512f -mavx512bw -mavx512dq %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
+    <ClCompile Include="..\MaskedOcclusionCullingNEON128.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\MaskedOcclusionCullingCommon.inl" />

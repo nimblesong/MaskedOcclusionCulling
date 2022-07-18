@@ -421,6 +421,11 @@ namespace MaskedOcclusionCullingAVX2
 	extern MaskedOcclusionCulling *CreateMaskedOcclusionCulling(pfnAlignedAlloc alignedAlloc, pfnAlignedFree alignedFree);
 }
 
+namespace MaskedOcclusionCullingNEON128
+{
+	extern MaskedOcclusionCulling* CreateMaskedOcclusionCulling(pfnAlignedAlloc alignedAlloc, pfnAlignedFree alignedFree);
+}
+
 MaskedOcclusionCulling *MaskedOcclusionCulling::Create(Implementation RequestedSIMD)
 {
 	return Create(RequestedSIMD, aligned_alloc, aligned_free);
@@ -434,6 +439,7 @@ MaskedOcclusionCulling *MaskedOcclusionCulling::Create(Implementation RequestedS
 
 	if (RequestedSIMD < impl)
 		impl = RequestedSIMD;
+
 
 	// Return best supported version
 	if (object == nullptr && impl >= AVX512)

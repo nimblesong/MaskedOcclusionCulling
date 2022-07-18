@@ -56,7 +56,7 @@
  * with the PRECISE_COVERAGE define, where this is important to ensure correct rounding and tie-breaker
  * behaviour. It also affects the ScissorRect screen space coordinates.
  */
-#define USE_D3D                         1
+#define USE_D3D                         0
 
 #endif
 
@@ -75,6 +75,16 @@
  * validated on simple examples using Intel SDE. Older compilers may not support AVX-512 intrinsics.
  */
 #define USE_AVX512                      0
+
+#endif
+
+
+#ifndef USE_NEON128
+ /*!
+  * Define USE_NEON128 to 1 to enable experimental Neon armv8a support. It's currently mostly untested and only
+  * validated on simple examples using Intel SDE. Older compilers may not support AVX-512 intrinsics.
+  */
+#define USE_NEON128                      1
 
 #endif
 
@@ -123,6 +133,11 @@ class FrameRecorder;
 
 #endif // #if MOC_RECORDER_ENABLE
 
+#if defined(ANDROID) || defined(__ANDROID__)
+#include <stddef.h>
+
+#endif
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Masked occlusion culling class
@@ -148,7 +163,8 @@ public:
 		SSE2   = 0,
 		SSE41  = 1,
 		AVX2   = 2,
-		AVX512 = 3
+		AVX512 = 3,
+		NEON128 = 4,
 	};
 
 	enum BackfaceWinding
