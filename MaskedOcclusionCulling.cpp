@@ -32,6 +32,9 @@
 	#error The MaskedOcclusionCulling.cpp should be compiled with lowest supported target platform, e.g. /arch:SSE2
 #endif
 
+
+#if !defined(ANDROID) && !defined(__ANDROID__) && USE_NEON128 == 0
+
 static MaskedOcclusionCulling::Implementation DetectCPUFeatures(MaskedOcclusionCulling::pfnAlignedAlloc alignedAlloc, MaskedOcclusionCulling::pfnAlignedFree alignedFree)
 {
 	struct CpuInfo { int regs[4]; };
@@ -83,6 +86,13 @@ static MaskedOcclusionCulling::Implementation DetectCPUFeatures(MaskedOcclusionC
     return retVal;
 }
 
+#endif
+
+#if USE_NEON128 == 1
+#include "sse2neon.h"
+#endif
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utility functions (not directly related to the algorithm/rasterizer)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,6 +128,7 @@ void MaskedOcclusionCulling::TransformVertices(const float *mtx, const float *in
 	}
 }
 
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Typedefs
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +136,8 @@ void MaskedOcclusionCulling::TransformVertices(const float *mtx, const float *in
 typedef MaskedOcclusionCulling::pfnAlignedAlloc pfnAlignedAlloc;
 typedef MaskedOcclusionCulling::pfnAlignedFree  pfnAlignedFree;
 typedef MaskedOcclusionCulling::VertexLayout    VertexLayout;
+
+#if !defined(ANDROID) && !defined(__ANDROID__) && USE_NEON128 == 0
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Common SSE2/SSE4.1 defines
@@ -420,6 +433,7 @@ namespace MaskedOcclusionCullingAVX2
 {
 	extern MaskedOcclusionCulling *CreateMaskedOcclusionCulling(pfnAlignedAlloc alignedAlloc, pfnAlignedFree alignedFree);
 }
+#endif
 
 namespace MaskedOcclusionCullingNEON128
 {
@@ -435,11 +449,16 @@ MaskedOcclusionCulling *MaskedOcclusionCulling::Create(Implementation RequestedS
 {
 	MaskedOcclusionCulling *object = nullptr;
 
+#if defined(ANDROID) || defined(__ANDROID__) || USE_NEON128 != 0
+
+	object = MaskedOcclusionCullingNEON128::CreateMaskedOcclusionCulling(alignedAlloc, alignedFree);
+
+#else
+
 	MaskedOcclusionCulling::Implementation impl = DetectCPUFeatures(alignedAlloc, alignedFree);
 
 	if (RequestedSIMD < impl)
 		impl = RequestedSIMD;
-
 
 	// Return best supported version
 	if (object == nullptr && impl >= AVX512)
@@ -450,6 +469,9 @@ MaskedOcclusionCulling *MaskedOcclusionCulling::Create(Implementation RequestedS
 		object = MaskedOcclusionCullingSSE41::CreateMaskedOcclusionCulling(alignedAlloc, alignedFree); // Use SSE4.1 version
 	if (object == nullptr)
 		object = MaskedOcclusionCullingSSE2::CreateMaskedOcclusionCulling(alignedAlloc, alignedFree); // Use SSE2 (slow) version
+#endif
+
+	
 
 	return object;
 }

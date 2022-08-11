@@ -640,7 +640,6 @@ public:
 		// Since the layout is known we can get some additional performance by using a 
 		// more optimized gather strategy.
 		assert(numLanes >= 1);
-
 		// Gather vertices 
 		__mw v[4], swz[4];
 		for (int i = 0; i < 3; i++)
@@ -648,7 +647,6 @@ public:
 			// Load 4 (x,y,z,w) vectors per SSE part of the SIMD register (so 4 vectors for SSE, 8 vectors for AVX)
 			// this fetch uses templates to unroll the loop
 			VtxFetch4<SIMD_LANES / 4>(v, inTrisPtr, i, inVtx, numLanes);
-
 			// Transpose each individual SSE part of the SSE/AVX register (similar to _MM_TRANSPOSE4_PS)
 			swz[0] = _mmw_shuffle_ps(v[0], v[1], 0x44);
 			swz[2] = _mmw_shuffle_ps(v[0], v[1], 0xEE);
@@ -1591,7 +1589,6 @@ public:
 	CullingResult RenderTriangles(const float *inVtx, const unsigned int *inTris, int nTris, const float *modelToClipMatrix, BackfaceWinding bfWinding, ClipPlanes clipPlaneMask, const VertexLayout &vtxLayout) override
 	{
         CullingResult retVal;
-
         if (vtxLayout.mStride == 16 && vtxLayout.mOffsetY == 4 && vtxLayout.mOffsetW == 12)
 			retVal = (CullingResult)RenderTriangles<0, 1>(inVtx, inTris, nTris, modelToClipMatrix, bfWinding, clipPlaneMask, vtxLayout);
         else
@@ -1884,6 +1881,7 @@ public:
             // Fill out SIMD registers by fetching more triangles. 
             numLanes = max( 0, min( SIMD_LANES - clippedTris, nTris - triIndex ) );
 #endif
+			
 
             if( numLanes > 0 ) {
                 if( FAST_GATHER )
@@ -1893,6 +1891,7 @@ public:
 
                 TransformVerts( vtxX, vtxY, vtxW, modelToClipMatrix );
             }
+			
 
             for( int clipTri = numLanes; clipTri < numLanes + clippedTris; clipTri++ )
             {
@@ -1905,7 +1904,6 @@ public:
                 }
                 clipTail = ( clipTail + 1 ) & ( MAX_CLIPPED - 1 );
             }
-
             triIndex += numLanes;
             inTrisPtr += numLanes * 3;
 
@@ -1917,14 +1915,11 @@ public:
             numLanes = min( SIMD_LANES, nTris - triIndex );
             triMask = ( 1U << numLanes ) - 1;
             triClipMask = triMask;
-
             if( FAST_GATHER )
                 GatherVerticesFast( vtxX, vtxY, vtxW, inVtx, inTrisPtr, numLanes );
             else
                 GatherVertices( vtxX, vtxY, vtxW, inVtx, inTrisPtr, numLanes, vtxLayout );
-
             TransformVerts( vtxX, vtxY, vtxW, modelToClipMatrix );
-
             triIndex += SIMD_LANES;
             inTrisPtr += SIMD_LANES * 3;
         }

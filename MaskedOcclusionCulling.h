@@ -138,6 +138,22 @@ class FrameRecorder;
 
 #endif
 
+#if defined(ANDROID) || defined(__ANDROID__)
+#include <android/log.h>
+#include <stdlib.h>
+#define APPNAME "MarskedOC"
+
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,    APPNAME, __VA_ARGS__)
+#define LOGW(...) __android_log_print(ANDROID_LOG_WARN,     APPNAME, __VA_ARGS__)
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO,     APPNAME, __VA_ARGS__)
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,    APPNAME, __VA_ARGS__)
+#else
+#define LOGE(...) 
+#define LOGW(...) 
+#define LOGI(...) 
+#define LOGD(...) 
+#endif
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Masked occlusion culling class
