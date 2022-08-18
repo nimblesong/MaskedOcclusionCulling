@@ -428,10 +428,11 @@ FORCE_INLINE uint32_t _mm_crc32_u8(uint32_t, uint8_t);
 /* Backwards compatibility for compilers with lack of specific type support */
 
 // Older gcc does not define vld1q_u8_x4 type
-#if defined(__GNUC__) && !defined(__clang__) &&                        \
-    ((__GNUC__ <= 11 && defined(__arm__)) ||                           \
-     (__GNUC__ == 10 && __GNUC_MINOR__ < 3 && defined(__aarch64__)) || \
-     (__GNUC__ <= 9 && defined(__aarch64__)))
+#if (defined(__GNUC__) && !defined(__clang__) &&                        \
+        ((__GNUC__ <= 11 && defined(__arm__)) ||                           \
+         (__GNUC__ == 10 && __GNUC_MINOR__ < 3 && defined(__aarch64__)) || \
+         (__GNUC__ <= 9 && defined(__aarch64__)))) ||                      \
+    ( defined(__clang__) &&  defined(__arm__))  //armv7a not define vld1q_u8_x4 on ndk 16b
 FORCE_INLINE uint8x16x4_t _sse2neon_vld1q_u8_x4(const uint8_t *p)
 {
     uint8x16x4_t ret;

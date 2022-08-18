@@ -4,8 +4,6 @@
 
 #include "MaskedOcclusionCulling.h"
 
-#include <algorithm>
-
 
 static MaskedOcclusionCulling* g_OC_instance = nullptr;
 
@@ -115,6 +113,7 @@ extern "C" unsigned char* MOC_GetDepthMap()
 		s_DebugImageData = new unsigned char[width * height * 3];
 	}
 	TonemapDepth(perPixelZBuffer, s_DebugImageData, width, height);
+	delete[]perPixelZBuffer;
 	
 	return s_DebugImageData;
 }

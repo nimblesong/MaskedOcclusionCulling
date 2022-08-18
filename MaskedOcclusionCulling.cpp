@@ -17,6 +17,7 @@
 #include <string.h>
 #include <assert.h>
 #include <float.h>
+#include <chrono>
 #include "MaskedOcclusionCulling.h"
 #include "CompilerSpecific.inl"
 
@@ -33,7 +34,14 @@
 #endif
 
 
-#if !defined(ANDROID) && !defined(__ANDROID__) && USE_NEON128 == 0
+#if USE_NEON128 == 0
+
+#if defined(ANDROID) || defined(__ANDROID__)
+#include <xmmintrin.h>     //SSE
+#include <emmintrin.h>     //SSE2
+#include <pmmintrin.h>     //SSE3
+#include <tmmintrin.h>     //SSSE3
+#endif
 
 static MaskedOcclusionCulling::Implementation DetectCPUFeatures(MaskedOcclusionCulling::pfnAlignedAlloc alignedAlloc, MaskedOcclusionCulling::pfnAlignedFree alignedFree)
 {
@@ -102,7 +110,7 @@ void MaskedOcclusionCulling::TransformVertices(const float *mtx, const float *in
 	// This function pretty slow, about 10-20% slower than if the vertices are stored in aligned SOA form.
 	if (nVtx == 0)
 		return;
-
+	
 	// Load matrix and swizzle out the z component. For post-multiplication (OGL), the matrix is assumed to be column 
 	// major, with one column per SSE register. For pre-multiplication (DX), the matrix is assumed to be row major.
 	__m128 mtxCol0 = _mm_loadu_ps(mtx);
@@ -113,6 +121,8 @@ void MaskedOcclusionCulling::TransformVertices(const float *mtx, const float *in
 	int stride = vtxLayout.mStride;
 	const char *vPtr = (const char *)inVtx;
 	float *outPtr = xfVtx;
+	long long cost_time_0 = 0, cost_time_1 = 0;
+	
 
 	// Iterate through all vertices and transform
 	for (unsigned int vtx = 0; vtx < nVtx; ++vtx)
@@ -137,7 +147,7 @@ typedef MaskedOcclusionCulling::pfnAlignedAlloc pfnAlignedAlloc;
 typedef MaskedOcclusionCulling::pfnAlignedFree  pfnAlignedFree;
 typedef MaskedOcclusionCulling::VertexLayout    VertexLayout;
 
-#if !defined(ANDROID) && !defined(__ANDROID__) && USE_NEON128 == 0
+#if USE_NEON128 == 0
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Common SSE2/SSE4.1 defines
@@ -256,11 +266,10 @@ FORCE_INLINE void GatherVertices(__m128 *vtxX, __m128 *vtxY, __m128 *vtxW, const
 		}
 	}
 }
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SSE4.1 version
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+#if !defined(ANDROID) && !defined(__ANDROID__)
 namespace MaskedOcclusionCullingSSE41
 {
 	FORCE_INLINE __m128i _mmw_mullo_epi32(const __m128i &a, const __m128i &b) { return _mm_mullo_epi32(a, b); }
@@ -312,6 +321,9 @@ namespace MaskedOcclusionCullingSSE41
 		return object;
 	}
 };
+
+
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SSE2 version
@@ -421,6 +433,7 @@ namespace MaskedOcclusionCullingSSE2
 	}
 };
 
+#if !defined(ANDROID) && !defined(__ANDROID__)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object construction and allocation
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -433,6 +446,8 @@ namespace MaskedOcclusionCullingAVX2
 {
 	extern MaskedOcclusionCulling *CreateMaskedOcclusionCulling(pfnAlignedAlloc alignedAlloc, pfnAlignedFree alignedFree);
 }
+#endif
+
 #endif
 
 namespace MaskedOcclusionCullingNEON128
@@ -449,7 +464,7 @@ MaskedOcclusionCulling *MaskedOcclusionCulling::Create(Implementation RequestedS
 {
 	MaskedOcclusionCulling *object = nullptr;
 
-#if defined(ANDROID) || defined(__ANDROID__) || USE_NEON128 != 0
+#if USE_NEON128 != 0
 
 	object = MaskedOcclusionCullingNEON128::CreateMaskedOcclusionCulling(alignedAlloc, alignedFree);
 
@@ -459,7 +474,7 @@ MaskedOcclusionCulling *MaskedOcclusionCulling::Create(Implementation RequestedS
 
 	if (RequestedSIMD < impl)
 		impl = RequestedSIMD;
-
+#if !defined(ANDROID) && !defined(__ANDROID__)
 	// Return best supported version
 	if (object == nullptr && impl >= AVX512)
 		object = MaskedOcclusionCullingAVX512::CreateMaskedOcclusionCulling(alignedAlloc, alignedFree); // Use AVX512 version
@@ -467,6 +482,7 @@ MaskedOcclusionCulling *MaskedOcclusionCulling::Create(Implementation RequestedS
 		object = MaskedOcclusionCullingAVX2::CreateMaskedOcclusionCulling(alignedAlloc, alignedFree); // Use AVX2 version
 	if (object == nullptr && impl >= SSE41)
 		object = MaskedOcclusionCullingSSE41::CreateMaskedOcclusionCulling(alignedAlloc, alignedFree); // Use SSE4.1 version
+#endif
 	if (object == nullptr)
 		object = MaskedOcclusionCullingSSE2::CreateMaskedOcclusionCulling(alignedAlloc, alignedFree); // Use SSE2 (slow) version
 #endif

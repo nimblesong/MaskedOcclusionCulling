@@ -84,7 +84,11 @@
   * Define USE_NEON128 to 1 to enable experimental Neon armv8a support. It's currently mostly untested and only
   * validated on simple examples using Intel SDE. Older compilers may not support AVX-512 intrinsics.
   */
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
 #define USE_NEON128                      1
+#else
+#define USE_NEON128                      0
+#endif
 
 #endif
 

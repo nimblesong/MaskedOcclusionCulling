@@ -1,6 +1,6 @@
 .vs
 .idea
 cmake-build-debug
-Projects/Android/obj/local/arm64-v8a/objs
+Projects/Android/obj/local
 StaticLib/x64/
 x64
