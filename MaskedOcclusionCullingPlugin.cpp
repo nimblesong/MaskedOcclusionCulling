@@ -33,7 +33,7 @@ extern "C" void MOC_RenderMesh(float* mesh_vertex_list, unsigned int mesh_vert_c
 {
 	if(g_OC_instance == nullptr)
 		return;
-	float *transed_vert_list = new float[mesh_vert_count];
+	float *transed_vert_list = new float[mesh_vert_count * 4];
 	MaskedOcclusionCulling::TransformVertices(trans_matrix, mesh_vertex_list, transed_vert_list, mesh_vert_count);
 	g_OC_instance->RenderTriangles(transed_vert_list, mesh_index_list, tris_count, trans_matrix);
 	delete []transed_vert_list;
@@ -43,7 +43,7 @@ extern "C" int MOC_TestMesh(float* mesh_vertex_list, unsigned int mesh_vert_coun
 {
 	if (g_OC_instance == nullptr)
 		return -1;
-	float* transed_vert_list = new float[mesh_vert_count];
+	float* transed_vert_list = new float[mesh_vert_count * 4];
 	MaskedOcclusionCulling::TransformVertices(trans_matrix, mesh_vertex_list, transed_vert_list, mesh_vert_count);
 	int result = g_OC_instance->TestTriangles(transed_vert_list, mesh_index_list, tris_count, trans_matrix);
 	delete[]transed_vert_list;

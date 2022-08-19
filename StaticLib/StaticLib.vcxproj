@@ -27,26 +27,26 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -72,15 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>MaskedOC</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>MaskedOC</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>MaskedOC</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>MaskedOC</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -89,12 +93,26 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>MaskedOcclusionCullingPlugin.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>SETLOCAL
+
+if "$(PlatformShortName)" == "x86" (
+  set TARGET_PLUGIN_PATH=D:\Project\TestOC\Assets\Plugins\x86
+) else (
+  set TARGET_PLUGIN_PATH=D:\Project\TestOC\Assets\Plugins\x86_64
+)
+echo Target Plugin Path is %TARGET_PLUGIN_PATH%
+copy /Y "$(TargetPath)" "%TARGET_PLUGIN_PATH%\$(TargetFileName)"
+
+ENDLOCAL</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,12 +121,26 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>MaskedOcclusionCullingPlugin.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>SETLOCAL
+
+if "$(PlatformShortName)" == "x86" (
+  set TARGET_PLUGIN_PATH=D:\Project\TestOC\Assets\Plugins\x86
+) else (
+  set TARGET_PLUGIN_PATH=D:\Project\TestOC\Assets\Plugins\x86_64
+)
+echo Target Plugin Path is %TARGET_PLUGIN_PATH%
+copy /Y "$(TargetPath)" "%TARGET_PLUGIN_PATH%\$(TargetFileName)"
+
+ENDLOCAL</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -119,6 +151,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,6 +160,19 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>MaskedOcclusionCullingPlugin.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>SETLOCAL
+
+if "$(PlatformShortName)" == "x86" (
+  set TARGET_PLUGIN_PATH=D:\Project\TestOC\Assets\Plugins\x86
+) else (
+  set TARGET_PLUGIN_PATH=D:\Project\TestOC\Assets\Plugins\x86_64
+)
+echo Target Plugin Path is %TARGET_PLUGIN_PATH%
+copy /Y "$(TargetPath)" "%TARGET_PLUGIN_PATH%\$(TargetFileName)"
+
+ENDLOCAL</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -137,6 +183,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,6 +192,19 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>MaskedOcclusionCullingPlugin.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>SETLOCAL
+
+if "$(PlatformShortName)" == "x86" (
+  set TARGET_PLUGIN_PATH=D:\Project\TestOC\Assets\Plugins\x86
+) else (
+  set TARGET_PLUGIN_PATH=D:\Project\TestOC\Assets\Plugins\x86_64
+)
+echo Target Plugin Path is %TARGET_PLUGIN_PATH%
+copy /Y "$(TargetPath)" "%TARGET_PLUGIN_PATH%\$(TargetFileName)"
+
+ENDLOCAL</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\CullingThreadpool.h" />

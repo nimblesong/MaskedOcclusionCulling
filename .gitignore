@@ -4,3 +4,15 @@ cmake-build-debug
 Projects/Android/obj/local
 StaticLib/x64/
 x64
+*.exp
+*.lib
+*.pdb
+*.obj
+*.log
+*.tlog
+*.recipe
+*.ilk
+*.idb
+*.txt
+*.iobj
+*.ipdb

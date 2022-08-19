@@ -74,7 +74,11 @@
  * Define USE_AVX512 to 1 to enable experimental AVX-512 support. It's currently mostly untested and only
  * validated on simple examples using Intel SDE. Older compilers may not support AVX-512 intrinsics.
  */
+#if defined(ANDROID) || defined(__ANDROID__)
 #define USE_AVX512                      0
+#else
+#define USE_AVX512                      1
+#endif
 
 #endif
 
